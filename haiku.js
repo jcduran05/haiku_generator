@@ -1,5 +1,5 @@
 var fs = require('fs');
-var cmudictFile = readCmudictFile('./testdict.txt');
+var cmudictFile = readCmudictFile('./cmudict.txt');
 
 function readCmudictFile(file){
   return fs.readFileSync(file).toString();
@@ -12,55 +12,43 @@ function formatData(data){
 
     lines.forEach(function(line){    
         lineSplit = line.split("  "); 
-        var splitIt = lineSplit[1].match(/\d/g);
         var currentWord = lineSplit[0];
+        var syllableCount = 0;
 
-        formattedData[currentWord] = {
-            // phoneme: splitIt,
-            syllableCount: (function count() {
-                if (lineSplit[1].match(/\d/g) === null) {
-                    return 0;
-                } else {
-                    return lineSplit[1].match(/\d/g).length;
-                }
-            })(0)
+        if(lineSplit[1] !== undefined) {
+            if (lineSplit[1].match(/\d/g) === null) {
+                syllableCount = 0;
+            } else {
+                syllableCount = lineSplit[1].match(/\d/g).length;
+            }
         }
-        // console.log("The word " + lineSplit[0] + " has this phoneme layout: " + splitIt); 
+
+        // Have each syllableCount that exists
+        // to have a collection of words
+        if (!(formattedData[syllableCount])) {
+            formattedData[syllableCount] = [];
+        } else {
+            formattedData[syllableCount].push(currentWord);
+        }
     });
 
-    // console.log(formattedData);
     return formattedData;   
 }
 
-// cmudictFile = formatData(cmudictFile);
-
-function syllablesArrays(num) {
-    var result = [];
-    for (var key in parseddata) {
-        var currentword = key;
-        var currentindex = parseddata[key].syllableCount;
-        if (result[currentindex] === undefined) {
-            result[currentindex] = [];
-            result[currentindex].push(currentword);
-        } else {
-            result[currentindex].push(currentword);
-        }
-    }
-    return result;
-}
-var syllablesArr = syllablesArrays(cmudictFile);
+var cmudictFile = formatData(cmudictFile);
 
 function createHaiku(structure){
-    var haiku = [];
+    var haiku = '';
     // structure specified in haiku_generator
     var haikuFormat = structure;
-    var dictionary = formatData(cmudictFile);
+    var dictionary = cmudictFile;
 
-    console.log(syllablesArr);
-    // haikuFormat.forEach(function(num) {
+    haikuFormat.forEach(function(num) {
+        line = dictionary[num][Math.floor(Math.random() * ( dictionary[num].length + 1))]
+        haiku += line + '\n';
+    });
 
-    // })
-
+    return haiku;
 }
 
 // Exporting the module
